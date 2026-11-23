@@ -14,10 +14,15 @@ class Vehicle extends Model
     public const STATUS_PAUSED = 'paused';
     public const STATUS_SOLD = 'sold';
 
+    public const FUELS = ['gasoline', 'ethanol', 'flex', 'diesel', 'electric', 'hybrid', 'cng'];
+    public const TRANSMISSIONS = ['manual', 'automatic', 'cvt', 'automated'];
+
+    // status e featured_until ficam FORA do fillable de propósito:
+    // só o nosso código muda o estado do anúncio, nunca o formulário.
     protected $fillable = [
         'brand', 'model', 'version', 'year_manufacture', 'year_model',
         'mileage', 'fuel', 'transmission', 'color', 'price_cents',
-        'city', 'state', 'description', 'status', 'featured_until',
+        'city', 'state', 'description',
     ];
 
     protected function casts(): array
