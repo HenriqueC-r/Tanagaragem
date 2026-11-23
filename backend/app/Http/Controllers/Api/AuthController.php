@@ -7,6 +7,8 @@ use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use App\Services\CnpjLookup;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -64,5 +66,52 @@ class AuthController extends Controller
             'store_status' => $isStore ? ($approved ? 'approved' : 'pending') : null,
             'user' => $user,
         ], 201);
+    }
+
+    public function login(Request $request): JsonResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $user = User::where('email', $credentials['email'])->first();
+
+        // Mesma mensagem para e-mail inexistente e senha errada,
+        // para ninguém descobrir quais e-mails têm conta.
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => 'E-mail ou senha incorretos.',
+            ]);
+        }
+
+        return response()->json([
+            'token' => $user->createToken('web')->plainTextToken,
+            'user' => $user,
+        ]);
+    }
+
+    public function me(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $plan = $user->activePlan();
+
+        return response()->json([
+            'user' => $user,
+            'store_status' => $user->type === User::TYPE_STORE
+                ? ($user->cnpj_verified_at ? 'approved' : 'pending')
+                : null,
+            'plan' => $plan?->only(['name', 'slug', 'vehicle_limit']),
+            'active_vehicles' => $user->activeVehiclesCount(),
+            'can_publish' => $user->canPublishVehicle(),
+        ]);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Sessão encerrada.']);
     }
 }
