@@ -31,6 +31,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'plan_expires_at' => 'datetime',
+            'cnpj_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -49,7 +50,8 @@ class User extends Authenticatable
      * Plano que vale agora:
      * - plano contratado e dentro da validade;
      * - senão, pessoa física cai no plano Grátis;
-     * - senão (loja sem plano ativo), nenhum.
+     * - senão, loja COM CNPJ aprovado cai no plano Loja Grátis;
+     * - senão (loja pendente de aprovação), nenhum.
      */
     public function activePlan(): ?Plan
     {
@@ -59,11 +61,13 @@ class User extends Authenticatable
             return $plan;
         }
 
-        if ($this->type === self::TYPE_PERSON) {
-            return Plan::where('slug', 'gratis')->first();
-        }
-
-        return null;
+        return match (true) {
+            $this->type === self::TYPE_PERSON
+                => Plan::where('slug', 'gratis')->first(),
+            $this->type === self::TYPE_STORE && $this->cnpj_verified_at !== null
+                => Plan::where('slug', 'loja-gratis')->first(),
+            default => null,
+        };
     }
 
     public function vehicleLimit(): int
