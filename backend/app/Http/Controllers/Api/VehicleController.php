@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class VehicleController extends Controller
@@ -30,7 +31,7 @@ class VehicleController extends Controller
         $vehicle = $request->user()->vehicles()->create($request->validated());
 
         return response()->json([
-            'message' => 'Rascunho criado. Publique quando estiver pronto.',
+            'message' => 'Rascunho criado. Adicione fotos e publique quando estiver pronto.',
             'vehicle' => $vehicle->fresh('photos'),
         ], 201);
     }
@@ -62,7 +63,11 @@ class VehicleController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
-        $this->ownVehicle($request, $id)->delete();
+        $vehicle = $this->ownVehicle($request, $id);
+
+        // O banco apaga as linhas das fotos (cascade); os ARQUIVOS apagamos aqui.
+        $vehicle->delete();
+        Storage::disk('public')->deleteDirectory("vehicles/{$vehicle->id}");
 
         return response()->json(['message' => 'Anúncio removido.']);
     }
@@ -84,6 +89,12 @@ class VehicleController extends Controller
         if ($vehicle->status === Vehicle::STATUS_SOLD) {
             throw ValidationException::withMessages([
                 'status' => 'Anúncio vendido não pode ser publicado de novo.',
+            ]);
+        }
+
+        if (! $vehicle->photos()->exists()) {
+            throw ValidationException::withMessages([
+                'photos' => 'Adicione pelo menos 1 foto antes de publicar.',
             ]);
         }
 
