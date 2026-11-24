@@ -1,12 +1,21 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PublicVehicleController;
 use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Api\VehiclePhotoController;
 use Illuminate\Support\Facades\Route;
 
 Route::pattern('id', '[0-9]+');
 Route::pattern('photoId', '[0-9]+');
+
+// Vitrine pública (sem login)
+Route::middleware('throttle:120,1')->group(function () {
+    Route::get('/vehicles', [PublicVehicleController::class, 'index']);
+    Route::get('/vehicles/featured', [PublicVehicleController::class, 'featured']);
+    Route::get('/vehicles/{id}', [PublicVehicleController::class, 'show']);
+    Route::get('/categories', [PublicVehicleController::class, 'categories']);
+});
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');

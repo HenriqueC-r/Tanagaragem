@@ -25,6 +25,7 @@ class VehicleRequest extends FormRequest
         $maxYear = (int) date('Y') + 1;
 
         return [
+            'category' => ['required', Rule::in(Vehicle::CATEGORIES)],
             'brand' => ['required', 'string', 'max:100'],
             'model' => ['required', 'string', 'max:100'],
             'version' => ['nullable', 'string', 'max:150'],
@@ -34,6 +35,7 @@ class VehicleRequest extends FormRequest
             'fuel' => ['required', Rule::in(Vehicle::FUELS)],
             'transmission' => ['required', Rule::in(Vehicle::TRANSMISSIONS)],
             'color' => ['nullable', 'string', 'max:50'],
+            'single_owner' => ['sometimes', 'boolean'],
             'price_cents' => ['required', 'integer', 'between:100,500000000'],
             'city' => ['required', 'string', 'max:120'],
             'state' => ['required', 'alpha', 'size:2'],
