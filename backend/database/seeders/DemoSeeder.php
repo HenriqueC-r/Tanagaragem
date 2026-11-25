@@ -21,7 +21,7 @@ class DemoSeeder extends Seeder
 
         $this->cleanup();
 
-        $storePlan = Plan::where('slug', 'loja-30')->first();
+        $storePlan = Plan::where('slug', 'loja-premium')->first();
 
         $stores = [
             's1' => ['Auto Dourados', 'Dourados'],

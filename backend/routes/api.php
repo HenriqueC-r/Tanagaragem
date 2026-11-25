@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PublicVehicleController;
 use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Api\VehiclePhotoController;
@@ -18,6 +19,7 @@ Route::middleware('throttle:120,1,public')->group(function () {
     Route::get('/vehicles/featured', [PublicVehicleController::class, 'featured']);
     Route::get('/vehicles/{id}', [PublicVehicleController::class, 'show']);
     Route::get('/categories', [PublicVehicleController::class, 'categories']);
+    Route::get('/plans', [PlanController::class, 'index']);
 });
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1,register');

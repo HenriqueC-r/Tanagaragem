@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Plan extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'for_type', 'price_cents', 'vehicle_limit', 'is_active',
+        'name', 'slug', 'tier', 'for_type', 'price_cents',
+        'vehicle_limit', 'featured_limit', 'is_active',
     ];
 
     protected function casts(): array

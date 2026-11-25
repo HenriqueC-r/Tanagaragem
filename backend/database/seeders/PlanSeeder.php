@@ -9,18 +9,32 @@ class PlanSeeder extends Seeder
 {
     public function run(): void
     {
-        // Valores de EXEMPLO: ajuste preços e limites quando decidir.
+        // Preços em centavos. "tier" agrupa as variantes do mesmo plano.
+        // Os slugs 'gratis' e 'loja-gratis' são usados pelo User::activePlan().
         $plans = [
-            ['slug' => 'gratis',      'name' => 'Grátis',       'for_type' => 'person', 'price_cents' => 0,     'vehicle_limit' => 1],
-            ['slug' => 'pessoa-3',    'name' => 'Pessoa 3',     'for_type' => 'person', 'price_cents' => 2990,  'vehicle_limit' => 3],
-            ['slug' => 'pessoa-5',    'name' => 'Pessoa 5',     'for_type' => 'person', 'price_cents' => 4990,  'vehicle_limit' => 5],
-            ['slug' => 'loja-gratis', 'name' => 'Loja Grátis',  'for_type' => 'store',  'price_cents' => 0,     'vehicle_limit' => 5],
-            ['slug' => 'loja-10',     'name' => 'Loja 10',      'for_type' => 'store',  'price_cents' => 9900,  'vehicle_limit' => 10],
-            ['slug' => 'loja-30',     'name' => 'Loja 30',      'for_type' => 'store',  'price_cents' => 19900, 'vehicle_limit' => 30],
+            // ---- Conta física ----
+            ['slug' => 'gratis',                  'tier' => 'free',    'name' => 'Free',                  'for_type' => 'person', 'price_cents' => 0,    'vehicle_limit' => 1,  'featured_limit' => 0],
+            ['slug' => 'pessoa-plus',             'tier' => 'plus',    'name' => 'Plus',                  'for_type' => 'person', 'price_cents' => 990,  'vehicle_limit' => 5,  'featured_limit' => 0],
+            ['slug' => 'pessoa-plus-destaque',    'tier' => 'plus',    'name' => 'Plus com destaques',    'for_type' => 'person', 'price_cents' => 1590, 'vehicle_limit' => 5,  'featured_limit' => 1],
+            ['slug' => 'pessoa-premium',          'tier' => 'premium', 'name' => 'Premium',               'for_type' => 'person', 'price_cents' => 1490, 'vehicle_limit' => 10, 'featured_limit' => 0],
+            ['slug' => 'pessoa-premium-destaque', 'tier' => 'premium', 'name' => 'Premium com destaques', 'for_type' => 'person', 'price_cents' => 2290, 'vehicle_limit' => 10, 'featured_limit' => 3],
+
+            // ---- Conta loja ----
+            ['slug' => 'loja-gratis',             'tier' => 'free',    'name' => 'Free',                  'for_type' => 'store',  'price_cents' => 0,    'vehicle_limit' => 5,  'featured_limit' => 0],
+            ['slug' => 'loja-starter',            'tier' => 'starter', 'name' => 'Starter',               'for_type' => 'store',  'price_cents' => 3290, 'vehicle_limit' => 35, 'featured_limit' => 0],
+            ['slug' => 'loja-starter-destaque',   'tier' => 'starter', 'name' => 'Starter com destaques', 'for_type' => 'store',  'price_cents' => 3990, 'vehicle_limit' => 35, 'featured_limit' => 3],
+            ['slug' => 'loja-pro',                'tier' => 'pro',     'name' => 'Pro',                   'for_type' => 'store',  'price_cents' => 3990, 'vehicle_limit' => 50, 'featured_limit' => 0],
+            ['slug' => 'loja-pro-destaque',       'tier' => 'pro',     'name' => 'Pro com destaques',     'for_type' => 'store',  'price_cents' => 4990, 'vehicle_limit' => 50, 'featured_limit' => 5],
+            ['slug' => 'loja-premium',            'tier' => 'premium', 'name' => 'Premium',               'for_type' => 'store',  'price_cents' => 5290, 'vehicle_limit' => 80, 'featured_limit' => 0],
+            ['slug' => 'loja-premium-destaque',   'tier' => 'premium', 'name' => 'Premium com destaques', 'for_type' => 'store',  'price_cents' => 6790, 'vehicle_limit' => 80, 'featured_limit' => 10],
         ];
 
         foreach ($plans as $plan) {
-            Plan::updateOrCreate(['slug' => $plan['slug']], $plan);
+            Plan::updateOrCreate(['slug' => $plan['slug']], $plan + ['is_active' => true]);
         }
+
+        // Planos que não estão mais na tabela de preços: desativa, nunca apaga.
+        // Quem já contratou continua com o plano; ele só deixa de ser vendido.
+        Plan::whereNotIn('slug', array_column($plans, 'slug'))->update(['is_active' => false]);
     }
 }
