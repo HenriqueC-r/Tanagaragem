@@ -1,81 +1,101 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+  <q-layout view="hHh lpR fff">
+    <q-header elevated class="bg-dark text-white">
+      <q-toolbar class="container q-py-sm">
+        <q-btn
+          flat
+          dense
+          round
+          icon="menu"
+          class="lt-md q-mr-sm"
+          aria-label="Abrir menu"
+          @click="drawer = !drawer"
+        />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+        <router-link to="/" class="brand"
+          >Tá na <span class="text-primary">Garagem</span></router-link
+        >
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div class="gt-sm q-ml-xl row q-gutter-sm">
+          <q-btn
+            v-for="link in links"
+            :key="link.to"
+            flat
+            no-caps
+            exact
+            :label="link.label"
+            :to="link.to"
+          />
+        </div>
+
+        <q-space />
+
+        <q-btn flat no-caps icon="person" label="Entrar" to="/entrar" class="gt-xs q-mr-sm" />
+        <q-btn
+          unelevated
+          no-caps
+          color="primary"
+          icon="add"
+          :label="$q.screen.lt.sm ? 'Anunciar' : 'Anunciar Agora'"
+          to="/anunciar"
+        />
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+    <q-drawer
+      v-model="drawer"
+      overlay
+      behavior="mobile"
+      bordered
+      :width="260"
+      class="bg-dark text-white"
+    >
+      <q-list padding>
+        <q-item
+          v-for="link in links"
+          :key="link.to"
+          v-ripple
+          clickable
+          exact
+          :to="link.to"
+          @click="drawer = false"
+        >
+          <q-item-section avatar><q-icon :name="link.icon" /></q-item-section>
+          <q-item-section>{{ link.label }}</q-item-section>
+        </q-item>
 
-        <EssentialLink v-for="link in linksList" :key="link.label" v-bind="link" />
+        <q-item v-ripple clickable to="/entrar" @click="drawer = false">
+          <q-item-section avatar><q-icon name="person" /></q-item-section>
+          <q-item-section>Entrar</q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-footer class="bg-dark text-grey-5 text-center q-pa-md"> © 2026 Tá na Garagem </q-footer>
   </q-layout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import EssentialLink from '@/components/EssentialLink.vue'
 
-const linksList = [
-  {
-    label: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    label: 'GitHub',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    label: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    label: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    label: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    label: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    label: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
+const drawer = ref(false)
+
+const links = [
+  { label: 'Início', to: '/', icon: 'home' },
+  { label: 'Veículos', to: '/veiculos', icon: 'directions_car' },
 ]
-
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
 </script>
+
+<style scoped>
+.brand {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+}
+</style>

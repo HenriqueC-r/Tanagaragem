@@ -118,7 +118,7 @@ class PublicVehicleController extends Controller
     public function categories(): JsonResponse
     {
         $counts = Vehicle::active()
-            ->selectRaw('category, count(*) as total')
+            ->selectRaw('category, count(*) as total') 
             ->groupBy('category')
             ->pluck('total', 'category');
 
