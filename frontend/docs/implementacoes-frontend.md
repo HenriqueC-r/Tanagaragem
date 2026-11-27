@@ -51,7 +51,7 @@ A tela de login em [`src/pages/LoginPage.vue`](../src/pages/LoginPage.vue) envia
 
 A tela [`src/pages/RegisterPage.vue`](../src/pages/RegisterPage.vue) integra com `POST /api/register`. O formulário oferece cadastro de pessoa física ou loja e segue os campos obrigatórios do backend, incluindo CPF, telefone, cidade, estado e confirmação de senha; para lojas, também solicita razão social e CNPJ.
 
-CPF e CNPJ são enviados apenas com dígitos, como esperado pela API. A resposta de validação é exibida para o usuário. Após o cadastro, a tela informa o resultado e encaminha para o login; o endpoint não cria uma sessão nem retorna token automaticamente. Cadastro de loja pode ficar pendente de análise do CNPJ.
+O telefone recebe máscara automática para fixo e celular e é enviado formatado. A cidade é escolhida de uma lista do IBGE carregada após a seleção do estado, evitando combinações digitadas livremente; se o serviço estiver indisponível, a tela informa e permite tentar de novo. CPF e CNPJ são enviados apenas com dígitos, como esperado pela API. A resposta de validação é exibida para o usuário. Após o cadastro, a tela informa o resultado e encaminha para o login; o endpoint não cria uma sessão nem retorna token automaticamente. Cadastro de loja pode ficar pendente de análise do CNPJ.
 
 ## Página inicial e banner
 

@@ -161,32 +161,47 @@
               </q-input>
 
               <q-input
-                v-model.trim="form.phone"
+                :model-value="phoneDisplay"
+                @update:model-value="updatePhone"
                 outlined
                 label="Telefone"
                 type="tel"
                 autocomplete="tel"
-                maxlength="20"
+                inputmode="tel"
                 :disable="loading"
-                :rules="[(value) => !!value || 'Informe seu telefone.']"
+                :rules="[
+                  (value) => [10, 11].includes(digits(value).length) || 'Informe um telefone válido.',
+                ]"
                 lazy-rules
               >
                 <template #prepend><q-icon name="phone" /></template>
               </q-input>
+              <div class="text-caption text-grey-7 phone-hint">
+                Ex.: (99) 9999-9999 ou (99) 99999-9999
+              </div>
 
               <div class="form-row">
-                <q-input
-                  v-model.trim="form.city"
+                <q-select
+                  :key="cityOptions.length"
+                  v-model="form.city"
                   outlined
                   label="Cidade"
-                  autocomplete="address-level2"
-                  maxlength="255"
-                  :disable="loading"
-                  :rules="[(value) => !!value || 'Informe sua cidade.']"
+                  :options="cityOptions"
+                  :loading="cityLoading"
+                  :disable="loading || !form.state || cityLoading || Boolean(cityLoadError)"
+                  :hint="!form.state ? 'Selecione o estado primeiro.' : ''"
+                  :rules="[(value) => !!value || 'Selecione sua cidade.']"
                   lazy-rules
                 >
                   <template #prepend><q-icon name="location_city" /></template>
-                </q-input>
+                  <template #no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        {{ cityLoading ? 'Carregando cidades...' : 'Nenhuma cidade encontrada.' }}
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
 
                 <q-select
                   v-model="form.state"
@@ -200,6 +215,17 @@
                   lazy-rules
                 />
               </div>
+              <q-banner
+                v-if="cityLoadError"
+                rounded
+                class="bg-orange-1 text-orange-10 q-mb-sm"
+              >
+                <template #avatar><q-icon name="warning" /></template>
+                Não foi possível carregar as cidades. Confira sua conexão e tente novamente.
+                <template #action>
+                  <q-btn flat no-caps label="Tentar novamente" @click="retryCities" />
+                </template>
+              </q-banner>
 
               <div class="form-row">
                 <q-input
@@ -270,7 +296,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { ApiError, register as requestRegister } from '../api'
 
 const states = [
@@ -318,15 +344,92 @@ const form = reactive({
 })
 
 const isStore = computed(() => form.type === 'store')
+const phoneDisplay = computed(() => formatPhone(form.phone))
 const loading = ref(false)
 const submitted = ref(false)
 const showPassword = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const storeStatus = ref(null)
+const cityOptions = ref([])
+const cityLoading = ref(false)
+const cityLoadError = ref(false)
+const cityRetry = ref(0)
+
+watch(
+  [() => form.state, cityRetry],
+  async ([state], _, onCleanup) => {
+    form.city = ''
+    cityOptions.value = []
+    cityLoadError.value = false
+    if (!state) {
+      cityLoading.value = false
+      return
+    }
+
+    const controller = new AbortController()
+    onCleanup(() => controller.abort())
+    cityLoading.value = true
+
+    try {
+      const response = await fetch(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${state}/municipios?orderBy=nome`,
+        {
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error(`IBGE request failed with status ${response.status}`)
+      }
+
+      const cities = await response.json()
+      if (
+        !Array.isArray(cities) ||
+        cities.length === 0 ||
+        cities.some((city) => typeof city.nome !== 'string')
+      ) {
+        throw new Error('IBGE returned an invalid city list')
+      }
+
+      cityOptions.value = cities.map((city) => city.nome)
+    } catch (error) {
+      if (error.name === 'AbortError') return
+      cityLoadError.value = true
+    } finally {
+      if (!controller.signal.aborted) cityLoading.value = false
+    }
+  },
+  { immediate: true },
+)
 
 function digits(value) {
   return String(value || '').replace(/\D/g, '')
+}
+
+function formatPhone(value) {
+  const phone = digits(value)
+  if (!phone) return ''
+
+  const areaCode = phone.slice(0, 2)
+  if (phone.length <= 2) return `(${areaCode}`
+
+  const subscriber = phone.slice(2)
+  const prefixLength = phone.length > 10 ? 5 : 4
+  const prefix = subscriber.slice(0, prefixLength)
+  const line = subscriber.slice(prefixLength)
+  const formattedAreaCode = `(${areaCode}) `
+
+  return line ? `${formattedAreaCode}${prefix}-${line}` : `${formattedAreaCode}${prefix}`
+}
+
+function updatePhone(value) {
+  form.phone = digits(value).slice(0, 11)
+}
+
+function retryCities() {
+  cityRetry.value += 1
 }
 
 function isValidEmail(value) {
@@ -340,6 +443,7 @@ async function submit() {
   const payload = {
     ...form,
     cpf: digits(form.cpf),
+    phone: formatPhone(form.phone),
     cnpj: isStore.value ? digits(form.cnpj) : null,
     company_name: isStore.value ? form.company_name : null,
   }
