@@ -21,6 +21,12 @@ Marketplace automotivo em desenvolvimento para aproximar quem procura um veícul
 
 O **Tá na Garagem** é uma plataforma de compra e venda de veículos pensada para particulares e lojas. A aplicação está sendo construída com uma interface responsiva em Vue/Quasar e uma API em Laravel.
 
+## Licença e direitos autorais
+
+**Este projeto é proprietário e não é open source.** Todos os direitos sobre o código e os materiais originais pertencem a Caio Henrique Ramos. A publicação do repositório não concede permissão para usar, copiar, modificar ou redistribuir o projeto. Componentes e dependências de terceiros continuam sujeitos às respectivas licenças.
+
+Consulte o arquivo [LICENSE](./LICENSE). Se o repositório estiver público no GitHub, o conteúdo continuará visível; para restringir o acesso, altere a visibilidade do repositório para privado nas configurações do GitHub.
+
 O repositório contém duas aplicações independentes:
 
 | Aplicação | Diretório                  | Responsabilidade                                    |
