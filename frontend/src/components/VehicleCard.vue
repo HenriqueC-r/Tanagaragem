@@ -22,13 +22,19 @@
     <q-card-section>
       <div class="text-subtitle1 text-weight-bold ellipsis">{{ vehicle.title }}</div>
 
-      <div class="text-caption text-grey-7">
-        <q-icon name="place" size="14px" />
-        {{ vehicle.city }} - {{ vehicle.state }}
-        <q-icon name="calendar_today" size="14px" class="q-ml-sm" />
-        {{ vehicle.year_model }}
-        <q-icon name="speed" size="14px" class="q-ml-sm" />
-        {{ formatKm(vehicle.mileage) }}
+      <div class="vehicle-meta text-caption text-grey-7">
+        <span class="ellipsis">
+          <q-icon name="place" size="14px" />
+          {{ vehicle.city }} - {{ vehicle.state }}
+        </span>
+        <span>
+          <q-icon name="calendar_today" size="14px" />
+          {{ vehicle.year_model }}
+        </span>
+        <span>
+          <q-icon name="speed" size="14px" />
+          {{ formatKm(vehicle.mileage) }}
+        </span>
       </div>
 
       <div class="row items-center justify-between q-mt-sm">
@@ -92,5 +98,83 @@ function open() {
 .no-photo {
   aspect-ratio: 4 / 3;
   background: #f1f1f1;
+}
+
+@media (max-width: 600px) {
+  .vehicle-card {
+    display: grid;
+    grid-template-columns: minmax(110px, 38%) minmax(0, 1fr);
+    min-height: 132px;
+  }
+
+  .photo {
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .photo :deep(.q-img) {
+    height: 100%;
+  }
+
+  .photo :deep(.q-img__container) {
+    height: 100%;
+    padding-bottom: 0 !important;
+  }
+
+  .no-photo {
+    height: 100%;
+    min-height: 132px;
+    aspect-ratio: auto;
+  }
+
+  .featured-badge {
+    top: 6px;
+    left: 6px;
+    font-size: 0.65rem;
+  }
+
+  .featured-badge :deep(.q-icon) {
+    font-size: 12px;
+  }
+
+  .vehicle-card :deep(.q-card__section) {
+    min-width: 0;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .vehicle-card .text-subtitle1 {
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+
+  .vehicle-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 8px;
+    margin-top: 5px;
+    line-height: 1.25;
+  }
+
+  .vehicle-meta > span {
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .vehicle-card :deep(.q-mt-sm) {
+    margin-top: 5px;
+  }
+
+  .vehicle-card .text-h6 {
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .vehicle-card :deep(.q-chip) {
+    margin: 0 0 0 6px;
+    font-size: 0.65rem;
+  }
 }
 </style>

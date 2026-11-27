@@ -36,3 +36,7 @@ quasar build
 ### Customize the configuration
 
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-file).
+
+## Implementações e comportamento responsivo
+
+Consulte [Implementações do frontend](./docs/implementacoes-frontend.md) para detalhes sobre as rotas, a página inicial, os cards responsivos, as categorias e os comandos de desenvolvimento.
