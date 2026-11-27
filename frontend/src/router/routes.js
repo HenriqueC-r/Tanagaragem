@@ -17,11 +17,11 @@ const routes = [
       },
       {
         path: 'entrar',
-        component: () => import('../pages/ComingSoonPage.vue'),
-        props: {
-          title: 'Entrar',
-          description: 'A página de acesso estará disponível em breve.',
-        },
+        component: () => import('../pages/LoginPage.vue'),
+      },
+      {
+        path: 'cadastrar',
+        component: () => import('../pages/RegisterPage.vue'),
       },
       {
         path: 'anunciar',

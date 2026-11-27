@@ -30,11 +30,28 @@ As rotas da aplicação ficam em [`src/router/routes.js`](../src/router/routes.j
 | `/`             | `IndexPage.vue`         | Página inicial.                                                                            |
 | `/veiculos`     | `VehiclesPage.vue`      | Busca e listagem de veículos.                                                              |
 | `/veiculos/:id` | `VehicleDetailPage.vue` | Detalhes do veículo. A rota explícita evita que links para um veículo caiam na página 404. |
-| `/entrar`       | `ComingSoonPage.vue`    | Placeholder informando que o acesso estará disponível em breve.                            |
+| `/entrar`       | `LoginPage.vue`         | Login integrado com a API.                                                                 |
+| `/cadastrar`    | `RegisterPage.vue`      | Cadastro integrado para pessoa física ou loja.                                             |
 | `/anunciar`     | `ComingSoonPage.vue`    | Placeholder informando que o cadastro de anúncio estará disponível em breve.               |
 | demais caminhos | `ErrorNotFound.vue`     | Página 404.                                                                                |
 
-`VehicleCard.vue` navega para `/veiculos/{id}` ao ser selecionado. As páginas de entrada e anúncio são apenas informativas: os fluxos de autenticação e criação de anúncios ainda não foram implementados no frontend.
+`VehicleCard.vue` navega para `/veiculos/{id}` ao ser selecionado. A tela `/anunciar` continua informativa; o fluxo de criação de anúncios ainda não foi implementado no frontend.
+
+## Login e sessão
+
+A tela de login em [`src/pages/LoginPage.vue`](../src/pages/LoginPage.vue) envia e-mail e senha para `POST /api/login`. Ela valida os campos, exibe erros de credenciais ou de conexão e oferece um controle para revelar a senha.
+
+- O token retornado pela API é guardado em `sessionStorage`, permanecendo disponível durante a sessão do navegador.
+- A autenticação fica centralizada em `src/stores/auth.js`.
+- Ao abrir a aplicação com um token salvo, o frontend valida a sessão usando `GET /api/me`.
+- O menu da conta permite encerrar a sessão por `POST /api/logout`; o token local é removido mesmo que o servidor esteja indisponível.
+- O cliente HTTP envia tokens como `Authorization: Bearer <token>`.
+
+## Cadastro
+
+A tela [`src/pages/RegisterPage.vue`](../src/pages/RegisterPage.vue) integra com `POST /api/register`. O formulário oferece cadastro de pessoa física ou loja e segue os campos obrigatórios do backend, incluindo CPF, telefone, cidade, estado e confirmação de senha; para lojas, também solicita razão social e CNPJ.
+
+CPF e CNPJ são enviados apenas com dígitos, como esperado pela API. A resposta de validação é exibida para o usuário. Após o cadastro, a tela informa o resultado e encaminha para o login; o endpoint não cria uma sessão nem retorna token automaticamente. Cadastro de loja pode ficar pendente de análise do CNPJ.
 
 ## Página inicial e banner
 

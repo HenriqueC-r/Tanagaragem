@@ -41,7 +41,9 @@ O repositório contém duas aplicações independentes:
 - Página inicial com busca, destaques e categorias populares.
 - Listagem e página de detalhes dos veículos.
 - Layout responsivo, incluindo cards horizontais em telas pequenas.
-- Rotas para acesso e criação de anúncios. Essas duas telas são placeholders e ainda não oferecem os fluxos de login ou publicação.
+- Cadastro e login integrados à API para pessoas físicas e lojas.
+- Validação da sessão e opção de sair.
+- A rota de criação de anúncios ainda é um placeholder; publicar anúncios pela interface ainda não está disponível.
 
 ### API
 
@@ -166,7 +168,8 @@ O frontend usa URLs com hash, por exemplo `/#/veiculos/10`.
 | `/`             | Página inicial             |
 | `/veiculos`     | Busca e listagem           |
 | `/veiculos/:id` | Detalhes do veículo        |
-| `/entrar`       | Tela provisória de acesso  |
+| `/entrar`       | Login integrado à API      |
+| `/cadastrar`    | Cadastro de pessoa ou loja |
 | `/anunciar`     | Tela provisória de anúncio |
 
 ## Estrutura do repositório
